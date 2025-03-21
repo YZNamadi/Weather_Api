@@ -45,7 +45,6 @@
 // };
 
 
-
 const axios = require('axios');
 
 exports.getWeather = async (req, res) => {
@@ -56,6 +55,7 @@ exports.getWeather = async (req, res) => {
   }
 
   const apiKey = process.env.API_KEY;
+
   if (!apiKey) {
     return res.status(500).json({ error: "Server configuration error: API key missing." });
   }
@@ -63,22 +63,28 @@ exports.getWeather = async (req, res) => {
   const url = `http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
 
   try {
-    const { data } = await axios.get(url);
+    const response = await axios.get(url);
+    const data = response.data;
 
-    res.json({
-      city: data.name,
-      temperature: data.main.temp,
-      feels_like: data.main.feels_like,
-      humidity: data.main.humidity,
-      condition: data.weather[0].description,
-      wind_speed: data.wind.speed,
-    });
+    const weatherResponse = {
+      city: `${data.name}, ${data.sys.country}`,
+      temperature: data.main.temp, 
+      condition: data.weather[0].description, 
+      wind_speed: data.wind.speed,  
+      humidity: data.main.humidity 
+    };
+
+    res.json(weatherResponse);
   } catch (error) {
-    console.error("Weather API Error:", error.message);
-
     if (error.response) {
-      return res.status(error.response.status).json({ error: error.response.data.message || "Weather service error." });
-    } 
-    return res.status(500).json({ error: "An unexpected error occurred." });
+      return res.status(error.response.status).json({
+        error: error.response.data.message || "Weather service error."
+      });
+    } else if (error.request) {
+      return res.status(500).json({ error: "No response from weather service." });
+    } else {
+      return res.status(500).json({ error: "An unexpected error occurred." });
+    }
   }
 };
+
