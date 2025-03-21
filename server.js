@@ -26,7 +26,7 @@ app.use(express.json());
 const weatherRoutes = require('./routes/weatherRoute');
 app.use('/weather', weatherRoutes);
 
-app.use(( req, res) => {
+app.use(( err, req, res) => {
   console.error(err.stack);
   res.status(500).json({ error: "Internal server error." });
 });
