@@ -1,5 +1,6 @@
 // const express = require('express');
 require('./config/database');
+const cors = require('cors');
 // // const transactionRouter = require('./routes/transactionRouter');
 
 // const PORT = 7496;
